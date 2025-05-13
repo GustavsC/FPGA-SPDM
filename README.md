@@ -1,5 +1,6 @@
 # FPGA-SPDM
 ================================================
+
 Researchers: LARC-SEMBEI-Escola Politécnica da USP
 
 Este repositório contém um projeto de implementação do Security Protocol and Data Model (SPDM) em hardware. Este hardware foi criado para executar a BIOS como um Requester e uma placa de rede Ethernet como Responder dentro da FPGA. A comunicação do SPDM é feita em 3 fases: GET_VERSION, GET_CAPABILITIES, and NEGOTIATE_ALGORITHMS [1].
@@ -9,14 +10,16 @@ Este repositório contém um projeto de implementação do Security Protocol and
 O projeto é executado na NetFPGA-SUME [2].
 
 Vivado 2023.1 com uma licença Virtex-7 é necessária para compilação e uso da FPGA. Mais informações da instalação da ferramenta podem ser encontradas nas referências. [3]
+
 Para compilação, a máquina host precisa de ao menos 16GB de RAM. Todo o experimento foi realizado em um Ubuntu 20.04.6 LTS com a biblioteca python3 instalada.
 
-Existem dois métodos de reprodutibilidade neste repositório: Compilação via TCL e Método de compilação. A diferença entre esses dois métodos é que no primeiro a BIOS, firmware, kernel, bootloader e o sistema de arquivos (initramfs.cpio) foram previamente compilados, enquanto no segundo, os mesmos são compilados a partir do código fonte disponível em repositórios. Em ambos o hardware precisa ser compilado.
+Existem dois métodos de reprodutibilidade neste repositório: [Compilação via TCL](#compilação-via-tcl) e [Método de compilação](#método-de-compilação). A diferença entre esses dois métodos é que no primeiro a BIOS, firmware, kernel, bootloader e o sistema de arquivos (initramfs.cpio) foram previamente compilados, enquanto no segundo, os mesmos são compilados a partir do código fonte disponível em repositórios. Em ambos o hardware precisa ser compilado.
 
 
-# Pré Requisito
+# Pré-requisito
 A biblioteca LiteX é uma biblioteca de código aberto para criação e/ou utilização de SoCs. Esta é considerada pré-requisito devido a sua ferramenta de leitura de seriais. [4] 
-Para instalar essa biblioteca siga as instruções:
+
+Para instalação desta biblioteca siga as instruções:
 
 ```
 $ mkdir LiteX
@@ -32,7 +35,7 @@ No método utilizando o TCL Script, o script cria o hardware dentro do Vivado at
 Para replicar o experimento, siga as intruções:
 
 1. Abra o terminal de comando Vivado Tcl Shell.
-2. cd no diretório SoC/SoC_with_spdm.
+2. cd SoC/SoC_with_spdm.
 3. Execute ***source digilent_netfpga_sume.tcl -notrace*** para gerar o binário.
 
 A compilação do projeto pode levar algum tempo (~1 hora usando 4 cores).
@@ -52,15 +55,16 @@ Tenha atenção de que /dev/ttyUSB1 é um endereço de USB, este endereço varia
 ls /dev/ttyUSB*
 lsusb
 ```
+Os resultados esperados podem ser visualizados na seção de [Resultados](#resultados) 
 
 ## Nota:
 Uma versão sem SPDM do SoC também está disponível para possível comparação. Para compilar esta versão siga as instruções:
 
 1. Abra o terminal de comando Vivado Tcl Shell.
-2. cd no diretório SoC/SoC_no_spdm.
+2. cd SoC/SoC_no_spdm.
 3. Execute ***source digilent_netfpga_sume.tcl -notrace*** para gerar o binário.
 
-O kernel também pode ser executado nesta versão. Basta seguir os passos descritos anteriormente em "Compilação via TCL"
+O kernel também pode ser executado nesta versão. Basta seguir os passos descritos anteriormente em [Compilação via TCL](#compilação-via-tcl)
 
 # Método de Compilação
 Todas as bibliotecas utilizadas junto ao compilador estão detalhadas nessa seção. Todo código fonte pode ser encontrado no diretório "SourceCode" deste repositório.
@@ -146,6 +150,8 @@ A estrutura de diretórios com os arquivos adicionados e substituídos ficará d
 /LiteX/litex/litex/soc/software/bios/cmds/cmd_bios.c
 ```
 
+As funções destes arquivos estão descritas na Tabela 1 da seção de [Anexos](#anexos)
+
 ***Tenha atenção quando editar os diretórios corretos antes de compilar, especialmente em Makefiles (libspdm_litex.mk, Makefile, common.mak).***
 
 ### 2.3 LibSPDM in Ethernet Card
@@ -161,6 +167,8 @@ Substuia/adicione os seguintes arquivos em seus respectivos diretórios:
 /LiteX/litex-boards/litex-boards/targets/digilent_netfpga_sume.py
 ```
 
+As funções destes arquivos estão descritas na Tabela 2 da seção de [Anexos](#anexos)
+
 Depois destas mudanças, volte ao diretório principal da LiteX e siga as seguintes instruções:
 
 ```
@@ -175,7 +183,14 @@ A BIOS compilada a partir do código fonte estará em:
 /LiteX/build/digilent_netfpga_sume/software/bios/bios.elf
 ```
 
-Com a bios.elf, basta substituir a BIOS em SoC/SoC_with_SPDM/software/bios e sigar as mesmas instruções do Método TCL.
+
+#### Firmware da placa de rede Ethernet
+
+Para compilação do firmware que será executado no processador Microblaze, o software Vitis 2023.1 é requisito.[5]
+
+O projeto está em formato .zip em SourceCode/Microblaze. Basta entrar no Vitis 2023.1 e ir em "Import Project". Após a importação, compile o projeto como "Debug"; O resultado estará no diretório de mesmo nome como "spdm_requester.elf".
+
+Com a bios.elf e spdm_requester.elf compiladas, basta substituir a BIOS em SoC/SoC_with_SPDM/software/bios e o firmware em SoC/SoC_with_SPDM/software/firmware. Após isto siga as mesmas instruções da seção [Compilação via TCL](#compilação-via-tcl).
 
 # System on Chip - Software [3]
 
@@ -289,11 +304,50 @@ Com os binários (Image, rootfs.cpio, fw_jump.bin and boot.json) no mesmo diret�
 litex_term /dev/ttyUSB1 --images=PATH/TO/boot.json
 ```
 
-Execute the digilent_netfpga_sume.bit na FPGA a partir do Vivado.
+Execute o digilent_netfpga_sume.bit na FPGA a partir do Vivado.
+# Resultados
+Com as instruções deste repositório corretamente executadas, os resultados esperados podem ser observados na imagem:
 
-# References
+![Screenshot from 2025-05-12 21-48-23](https://github.com/user-attachments/assets/9b1ed1fc-50fd-4583-b554-b0b9a4ccb6f1)
+
+A execução do SPDM junto ao boot do Kernel Linux.
+
+# Anexos
+
+### Tabela 1 - Arquivos de BIOS
+| Arquivo  | Função |
+| ------------- | ------------- |
+| common.mak | Makefile de compilação |
+| boot.c | Responsável por realizar a função de boot serial |
+| bswapsi2.c | Biblioteca de suporte |
+| int_endianness.h | Biblioteca de suporte |
+| int_lib.h | Biblioteca de suporte |
+| int_types.h | Biblioteca de suporte |
+| int_util.h | Biblioteca de suporte |
+| linker.ld | Linker com adição de um heap de memória para alocação do SPDM |
+| spdmfuncs.c | Contém as funções de SPDM para a BIOS |
+| spdmfuncs.h | Header das funções SPDM |
+| Makefile | Responsável por realizar a compilação para código objeto das bibliotecas e da BIOS |
+| cmd_bios.c  | Responsável por permitir o uso do SPDM a partir da BIOS |
+
+### Tabela 2 - Arquivos de hardware LiteX
+| Arquivo  | Função |
+| ------------- | ------------- |
+| v7_1000basex.py | Descrição para criação de Verilog com registradores SPDM da placa de rede |
+| gth_7series.py | Descrição da máquina de estados do transceiver que é utilizado como Ethernet |
+| gth_7series_init.py | Estado inicial da máquina com seus sinais |
+| /platforms/digilent_netfpga_sume.py | Descrição de pinos da FPGA NetFPGA Sume. Utilizado para criação de Verilog |
+| /targets/digilent_netfpga_sume.py | Descrição em alto nível da FPGA NetFPGA Sume. Utilizado para criação de Verilog |
+
+
+# Referências
 [1] https://www.dmtf.org/sites/default/files/standards/documents/DSP0274_1.2.1.pdf
+
 [2] https://digilent.com/reference/programmable-logic/netfpga-sume/start?srsltid=AfmBOorSQYE7kGKgUYJlLcDCyw6vfYHvrAbTzTf5HQJcgC4-E-jnjQHG
+
 [3] https://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vivado-design-tools/archive.html
+
 [4] https://github.com/enjoy-digital/litex
+
+[5] https://docs.amd.com/r/2023.1-English/ug1400-vitis-embedded/Installing-the-Vitis-Software-Platform
 
