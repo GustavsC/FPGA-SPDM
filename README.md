@@ -192,7 +192,7 @@ O projeto está em formato .zip em SourceCode/Microblaze. Basta entrar no Vitis 
 
 Com a bios.elf e spdm_requester.elf compiladas, basta substituir a BIOS em SoC/SoC_with_SPDM/software/bios e o firmware em SoC/SoC_with_SPDM/software/firmware. Após isto siga as mesmas instruções da seção [Compilação via TCL](#compilação-via-tcl).
 
-# System on Chip - Software [3]
+# System on Chip - Software
 
 ## Kernel Image e rootfs.cpio
 
@@ -203,8 +203,9 @@ Primeiro, configure e obtenha o busybox. Compile para RISC-V:
 ```
 curl https://busybox.net/downloads/busybox-1.33.2.tar.bz2 | tar xfj -
 cp PATH/TO/FPGA-SPDM/Kernel/busybox-1.33.2/.config busybox-1.33.2/.config
-(cd busybox-1.33.2; make CROSS_COMPILE=PATH/TO/riscv64-unknown-linux-gnu-)
+(cd busybox-1.33.2; make CROSS_COMPILE=/opt/riscv/bin/riscv64-unknown-linux-gnu-)
 mkdir linux
+cp PATH/TO/FPGA-SPDM/Kernel/busybox-1.33.2/linux/.config linux/.config
 ```
 
 Com o busybox compilado, construa o initramfs.cpio. Dentro do repositório do busybox-1.33.2: 
@@ -214,7 +215,7 @@ mkdir initramfs
 pushd initramfs
 mkdir -p bin sbin lib etc dev home proc sys tmp mnt nfs root \
           usr/bin usr/sbin usr/lib
-cp ../busybox-1.33.2/busybox bin/
+cp ../busybox bin/
 ln -s bin/busybox ./init
 cat > etc/inittab <<- "EOT"
 ::sysinit:/bin/busybox mount -t proc proc /proc
@@ -230,7 +231,6 @@ EOT
 popd
 ```
 
-
 Para construção da imagem do Kernel Image e do initramfs.cpio iremos utilizar o buildroot:
 
 ```
@@ -242,6 +242,10 @@ $ cd buildroot-2023.05.1
 ```
 
 Use as configurações .config deste repositório. Coloque estes arquivos nos diretórios corretos.
+
+```
+cp PATH/TO/FPGA-SPDM/Kernel/buildroot_riscv64/buildroot-2023.05.1/.config .config
+```
 
 No arquivo buildroot-2023.05.01/.config, substitua as pelo correto PATH nas seguintes configurações:
 
@@ -265,7 +269,7 @@ $ make
 A Imagem do Kernel está em: /output/images/Image
 O binário do rootfs.cpio está em: /output/images/rootfs.cpio
 
-## Bootloader - OpenSBI [4]
+## Bootloader - OpenSBI
 
 Antes de compilar o bootloader, será necessário criar o Device Tree Blob (DTB). Utilize o DeviceTree fornecido neste repositório e siga as instruções:
 
@@ -300,8 +304,10 @@ Crie um arquivo boot.json com a configuração de memória:
 
 Com os binários (Image, rootfs.cpio, fw_jump.bin and boot.json) no mesmo diretório execute o comando no terminal:
 
+Para iniciar o Kernel Linux basta ir em LiteX/litex/litex/tools e executar em um terminal o comando. 
+
 ```
-litex_term /dev/ttyUSB1 --images=PATH/TO/boot.json
+python3 litex_term.py /dev/ttyUSB1 --images=PATH/TO/SoC/SoC_with_spdm/kernel/boot.json
 ```
 
 Execute o digilent_netfpga_sume.bit na FPGA a partir do Vivado.
