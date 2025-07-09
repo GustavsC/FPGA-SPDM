@@ -147,32 +147,19 @@ uint8_t m_session_policy =
 uint8_t m_end_session_attributes =
     SPDM_END_SESSION_REQUEST_ATTRIBUTES_PRESERVE_NEGOTIATED_STATE_CLEAR;
     
-libspdm_return_t spdm_get_response_vendor_defined_request(
+libspdm_return_t libspdm_get_response_vendor_defined_request(
     void *spdm_context, const uint32_t *session_id, bool is_app_message,
     size_t request_size, const void *request, size_t *response_size,
     void *response)
 {
-    //libspdm_return_t status;
-
-
-
-
-        LIBSPDM_ASSERT(is_app_message);
-        //status = mctp_get_response_secured_app_request (
-            //m_mctp_context, spdm_context, session_id,
-           // request, request_size, response, response_size);
-    
-
     return LIBSPDM_STATUS_SUCCESS;
 }
 
 libspdm_return_t spdm_device_acquire_sender_buffer (
     void *context, size_t *max_msg_size, void **msg_buf_ptr)
 {
-    //LIBSPDM_ASSERT (!m_send_receive_buffer_acquired);
     *max_msg_size = sizeof(m_send_receive_buffer);
     *msg_buf_ptr = m_send_receive_buffer;
-    //libspdm_zero_mem (m_send_receive_buffer, sizeof(m_send_receive_buffer));
     m_send_receive_buffer_acquired = true;
     return LIBSPDM_STATUS_SUCCESS;
 }
@@ -180,8 +167,6 @@ libspdm_return_t spdm_device_acquire_sender_buffer (
 void spdm_device_release_sender_buffer (
     void *context, const void *msg_buf_ptr)
 {
-    //LIBSPDM_ASSERT (m_send_receive_buffer_acquired);
-    //LIBSPDM_ASSERT (msg_buf_ptr == m_send_receive_buffer);
     m_send_receive_buffer_acquired = false;
     return;
 }
@@ -189,10 +174,8 @@ void spdm_device_release_sender_buffer (
 libspdm_return_t spdm_device_acquire_receiver_buffer (
     void *context, size_t *max_msg_size, void **msg_buf_ptr)
 {
-    //LIBSPDM_ASSERT (!m_send_receive_buffer_acquired);
     *max_msg_size = sizeof(m_send_receive_buffer);
     *msg_buf_ptr = m_send_receive_buffer;
-    //libspdm_zero_mem (m_send_receive_buffer, sizeof(m_send_receive_buffer));
     m_send_receive_buffer_acquired = true;
     return LIBSPDM_STATUS_SUCCESS;
 }
@@ -200,15 +183,13 @@ libspdm_return_t spdm_device_acquire_receiver_buffer (
 void spdm_device_release_receiver_buffer (
     void *context, const void *msg_buf_ptr)
 {
-    //LIBSPDM_ASSERT (m_send_receive_buffer_acquired);
-    //LIBSPDM_ASSERT (msg_buf_ptr == m_send_receive_buffer);
     m_send_receive_buffer_acquired = false;
     return;
 }
 
 
 
-#ifdef CSR_ETHPHY_BASE //Ok
+#ifdef CSR_ETHPHY_BASE 
 libspdm_return_t spdm_requester_send_message(void *spdm_context,
                                              size_t message_size, const void *message,
                                              uint64_t timeout)
@@ -428,6 +409,12 @@ void *spdm_requester(void)
         
     status = libspdm_init_connection(spdm_context, 0);
     printf("libspdm_init_connection - 0x%x\n", (uint32_t)status);
+    
+    if(status!=0x0){
+    	printf("Error, connection failed");
+    	while(1){
+        }
+    }
      
     return spdm_context;
 	
@@ -443,13 +430,11 @@ libspdm_return_t spdm_responder_send_message(void *spdm_context,
 
    printf("Message size spdm_responder_send_message %zu \n", message_size);
    printf("SPDM Message from responder: %llx\n", message);
-   //ethphy__register_spdm_SPDM_register_2_write(message);
-   
    return LIBSPDM_STATUS_SUCCESS;        
 }
 #endif
 
-#ifdef CSR_ETHPHY_BASE //Ok
+#ifdef CSR_ETHPHY_BASE 
 libspdm_return_t spdm_responder_receive_message(void *spdm_context,
                                                 size_t *message_size,
                                                 void **message,
@@ -606,12 +591,11 @@ void *spdm_responder(void)
      		if (status == LIBSPDM_STATUS_SUCCESS) {
        		continue;
      	} else
-     	   //printf("Non SPDM message");
      	   break;
   	} 
     
     libspdm_register_get_response_func(
-        spdm_context, spdm_get_response_vendor_defined_request);
+        spdm_context, libspdm_get_response_vendor_defined_request);
     
     return m_spdm_context;	
 }

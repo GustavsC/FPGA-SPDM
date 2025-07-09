@@ -434,7 +434,6 @@ int main()
 	libspdm_register_connection_state_callback_func(
         spdm_context, spdm_server_connection_state_callback);
 
-    //cleanup_platform();
     libspdm_deinit_context(spdm_context);
     return spdm_context;
 }
