@@ -44,15 +44,15 @@ Os selos solicitados pelos autores para avaliação deste trabalho são: Dispon�
 
 # Informações básicas
 
-Para reprodução (compilação) do experimento é estritamente necessário uma máquina host com ao menos 16GB de RAM e 4 núcleos de processamento. Igualmente, recomenda-se a utilização de um sistema operacional Ubuntu 20.04.6 LTS. Em relação aos softwares, precisa-se do Vivado 2023.1 com uma licença Virtex-7, utilizado para compilação e programação da FPGA [3]. As bibliotecas python3 e LiteX instaladas.
-
 Para execução do projeto é necessário um FPGA NetFPGA-SUME [2]. 
+
+Para reprodução (compilação) do experimento é estritamente necessário uma máquina host com ao menos 16GB de RAM e 4 núcleos de processamento. Igualmente, recomenda-se a utilização de um sistema operacional Ubuntu 20.04.6 LTS. Em relação aos softwares, será necessário as bibliotecas python3 e LiteX. Outro software necessário é o Vivado 2023.1 com uma licença Virtex-7, utilizado para compilação e programação da FPGA [3]. As instruções de instalação do Vivado 2023.1 pode ser encontrada em: https://docs.amd.com/r/2023.1-English/ug910-vivado-getting-started/Installing-the-Vivado-Design-Suite.
 
 OBS: A Licença Virtex-7 é uma licença paga, porém, a empresa responsável fornece uma licença gratuita de 30 dias que pode também ser utilizada para reprodução deste trabalho. O modo de instalação é: Dentro do ambiente Vivado, vá em *Help* -> *Obtain a License Key* -> *Start Now! 30 Day Trial* -> *Process Now*. Pronto, a licença está funcional por 30 dias.
 
 # Dependências
 
-A versão utilizada na biblioteca LiteX é a versão 2024.04.
+A versão utilizada na biblioteca LiteX é a versão 2024.04. A versão do Python3 recomendada é a 3.8.10, porém, versões superiores podem ser utilizadas.
 
 # Preocupações com segurança
 
@@ -80,7 +80,7 @@ No método utilizando o TCL Script, o script cria o hardware dentro do Vivado at
 
 Para replicar o experimento, siga as intruções:
 
-1. Abra o terminal de comando Vivado Tcl Shell.
+1. Abra o terminal de comando Vivado Tcl Shell [5].
 2. cd SoC/SoC_with_spdm.
 3. Execute ***source digilent_netfpga_sume.tcl -notrace*** para gerar o binário.
 
@@ -112,7 +112,7 @@ Depois de inicializado (no qual o SoC é liberado para receber comandos via tecl
 
 Iremos reproduzir dois experimentos.
 
-## Reivindicações #Execução do Kernel após SPDM
+## Reivindicações #Inicialização correta do Kernel com autenticação SPDM na Ethernet
 
 Em SoC/SoC_with_spdm/kernel os binários do Kernel, bootloader e initramfs.cpio estão disponíveis junto ao boot.json. 
 
@@ -128,7 +128,9 @@ O SPDM irá ser executado e após *upload* dos arquivos na memória RAM (Cerca d
 
 ## Reivindicações #Execução do Kernel interrompida devido a ataque no firmware da Ethernet
 
-O segundo teste aplicado se refere a demonstração da reação do SPDM diante de uma adulteração de firmware. Neste caso o atacante tentou alterar os algoritmos de Hash estáveis por um com vulnerabilidade. No diretório SoC/SoC_with_spdm/software/firmware há dois firmwares da Ethernet disponíveis sendo um deles o *spdm_requester_adulterado.elf*. Renomeie este firmware para *spdm_requester.elf* (cuidado com dois nomes iguais, o firmware que será compilado no SoC **sempre** estará como *spdm_requester.elf*) e recompile no ambiente Vivado através de *Run Synthesis* -> *Run Implementation* -> *Generate Bitstream*. Após compilado (cerca de 40min, a depender da máquina host) o binário *digilent_netfpga_sume.bit* pode ser programado na FPGA do mesmo modo como descrito em [Teste Mínimo](#teste-mínimo).
+O segundo teste aplicado se refere a demonstração da reação do SPDM diante de uma adulteração de firmware. Neste caso o atacante tentou alterar os algoritmos de Hash estáveis por um com vulnerabilidade. 
+
+No diretório SoC/SoC_with_spdm/software/firmware há dois firmwares da Ethernet disponíveis sendo um deles o *spdm_requester_adulterado.elf*. Renomeie este firmware para *spdm_requester.elf* (cuidado com dois nomes iguais, o firmware que será compilado no SoC **sempre** estará como *spdm_requester.elf*) e recompile no ambiente Vivado através de *Run Synthesis* -> *Run Implementation* -> *Generate Bitstream*. Após compilado (cerca de 40min, a depender da máquina host) o binário *digilent_netfpga_sume.bit* pode ser programado na FPGA do mesmo modo como descrito em [Teste Mínimo](#teste-mínimo).
 
 O resultado esperado será como o da Imagem abaixo:
 
@@ -255,7 +257,7 @@ A BIOS compilada a partir do código fonte estará em:
 
 #### Firmware da placa de rede Ethernet
 
-Para compilação do firmware que será executado no processador Microblaze, o software Vitis 2023.1 é requisito.[5]
+Para compilação do firmware que será executado no processador Microblaze, o software Vitis 2023.1 é requisito.[6]
 
 O projeto está em formato .zip em SourceCode/Microblaze. Basta entrar no Vitis 2023.1 e ir em "Import Project". Após a importação, compile o projeto como "Debug"; O resultado estará no diretório de mesmo nome como "spdm_requester.elf".
 
@@ -421,6 +423,8 @@ Em arquivo LICENSE
 
 [4] https://github.com/enjoy-digital/litex
 
-[5] https://docs.amd.com/r/2023.1-English/ug1400-vitis-embedded/Installing-the-Vitis-Software-Platform
+[5]https://docs.amd.com/r/2023.1-English/ug893-vivado-ide/Using-the-Tcl-Console
+
+[6] https://docs.amd.com/r/2023.1-English/ug1400-vitis-embedded/Installing-the-Vitis-Software-Platform
 
 
