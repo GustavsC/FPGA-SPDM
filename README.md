@@ -17,6 +17,7 @@ Existem dois métodos de reprodutibilidade neste repositório: [Compilação via
 
 - [Preocupações com segurança](#preocupações-com-segurança)
 - [Instalação](#instalação)
+    - [Docker](#docker)
     - [Pré-requisito](#pré-requisito)
     - [Compilação via TCL](#compilação-via-tcl)
 - [Teste Mínimo](#teste-mínimo)
@@ -62,6 +63,22 @@ Ao ligar a placa, deve-se ter o cuidado com contatos na ventoinha, já que esta 
 # Instalação
 
 Na etapa de instalação está descrito o processo de instalação da LiteX e da compilação do artefato. Esta seção se divide em duas partes: [Pré-requisito](#pré-requisito) e [Compilação via TCL](#compilação-via-tcl).
+
+## Docker
+
+Existe a opção de reproduzir este experimento via Docker. O Vivado para ser instalado precisa de credenciais, estas estão codificadas dentro do script *password.sh*, basta atualizar os parâmetros *set email "my-email@gmail.com"* e *set password "my-password"*. Com as credenciais plenamente colocadas, basta criar a imagem Docker.
+
+
+```
+$ cd Docker
+$ DOCKER_BUILDKIT=0 docker build --no-cache -t sbseg_script .
+```
+
+Dentro do Container criado, para compilação do projeto, basta utilizar o seguinte script. Tenha observação para que o uso de uma licença Virtex-7 é necessário.
+
+```
+$ ./compile_soc.sh
+```
 
 ## Pré-requisito
 A biblioteca LiteX é uma biblioteca de código aberto para criação e/ou utilização de SoCs. Esta é considerada pré-requisito devido a ser uma ferramenta de leitura de seriais. [4] 
