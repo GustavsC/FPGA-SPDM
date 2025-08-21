@@ -80,6 +80,8 @@ Dentro do Container criado, para compilação do projeto, basta utilizar o segui
 $ ./compile_soc.sh
 ```
 
+Ao final da compilação, um arquivo chamado "digilent_netfpga_sume.bit" foi gerado. Após isto pode-se seguir direto para o [Teste Mínimo](#teste-minimo).
+
 ## Pré-requisito
 A biblioteca LiteX é uma biblioteca de código aberto para criação e/ou utilização de SoCs. Esta é considerada pré-requisito devido a ser uma ferramenta de leitura de seriais. [4] 
 
@@ -119,6 +121,12 @@ python3 litex_term.py /dev/ttyUSB1
 ```
 
 Com a USB conectada e a leitura de seriais preparada, vá no ambiente Vivado 2023.1 e siga: *Program and Debug* -> *Open Hardware Manager* -> *Open Target* -> *Auto Connect*. Espere a conexão com a FPGA e depois siga: *xc7vx690t_0* -> *Program Device*, selecione o arquivo **digilent_netfpga_sume.bit** e então clique em *Program*. Espere o SoC inicializar.
+
+Alternativamente, apenas rode o script:
+
+```
+$ ./program_fpga.sh
+```
 
 Depois de inicializado (no qual o SoC é liberado para receber comandos via teclado padrão da máquina host), digite no console **spdm_requester**. Se ocorrer de aparecer uma variável com o nome **libspdm_init_connection = 0x0** o teste mínimo foi bem sucedido. O teste mínimo deve ocorrer como na Imagem abaixo:
 

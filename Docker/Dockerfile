@@ -44,6 +44,9 @@ RUN ./litex_setup.py --init --tag=2024.04 --install --user --config=minimal
 RUN git clone https://github.com/GustavsC/FPGA-SPDM
 COPY compile_soc.sh compile_soc.sh
 RUN chmod +x compile_soc.sh
+COPY program_fpga.sh program_fpga.sh
+RUN chmod +x program_fpga.sh
+COPY fpga.tcl fpga.tcl
     
 # Create directories for installer and Vivado installation
 RUN mkdir -p ${VIVADO_INSTALLER_PATH} ${VIVADO_INSTALL_DIR}
